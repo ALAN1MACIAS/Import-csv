@@ -1,5 +1,6 @@
 class ProductsController < ApplicationController
-  before_action :set_product, only: %i[ show edit update destroy ]
+  before_action :set_product, only: %i[edit update destroy]
+  before_action :set_product_seller_buyer, only: %i[show]
 
   def import
     Product.import(params[:file])
@@ -56,6 +57,12 @@ class ProductsController < ApplicationController
 
   def set_product
     @product = Product.find(params[:id])
+  end
+
+  def set_product_seller_buyer
+    @product = Product.find(params[:id])
+    @sellers = Productsseller.where(product_id: params[:id]).includes(:seller)
+    @buyers = Productspurchased.where(product_id: params[:id]).includes(:buyer)
   end
 
   def product_params

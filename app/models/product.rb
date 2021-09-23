@@ -16,11 +16,19 @@ class Product < ApplicationRecord
         product.update(total: (product.total + total[1].to_i))
       end
 
-      seller = Seller.find_by_name(name_seller[1])
-      seller = Seller.create!(name: name_seller[1], address: address_seller[1]) if seller.nil?
+      productssellers = Productsseller.where(product_id: product.id)
+      if productssellers.nil?
+        seller = Seller.find_by_name(name_seller[1])
+        seller = Seller.create!(name: name_seller[1], address: address_seller[1]) if seller.nil?
+      else
+        productssellers.each { |productsseller| seller = Seller.find_by_id(productsseller.seller_id) }
+        if seller.nil?
+          seller = Seller.create!(name: name_seller[1], address: address_seller[1])
+          Productsseller.create!(seller_id: seller.id, product_id: product.id)
+        end
+      end
 
       Productspurchased.create!(buyer_id: buyer.id, product_id: product.id)
-      Productsseller.create!(seller_id: seller.id, product_id: product.id)
     end
   end
 end
